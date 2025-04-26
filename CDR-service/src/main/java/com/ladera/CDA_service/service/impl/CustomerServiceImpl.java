@@ -23,6 +23,8 @@ public class CustomerServiceImpl implements CustomerService {
 	private ModelMapper modelMapper;
 	@Autowired
 	private DocumentRepo documentsRepo;
+	@Autowired
+	private CustomerIdGeneratorService customerIdGeneratorService;
 	
 	private static final Logger logger = LoggerFactory.getLogger(CustomerServiceImpl.class);
 
@@ -51,7 +53,7 @@ public class CustomerServiceImpl implements CustomerService {
 				pan = doc.getDocumentNo();
 			}
 		}
-		String generatedId = generateCustomerId(adhaar, pan);
+		String generatedId = customerIdGeneratorService.generateCustomerId(adhaar, pan); 
 		customerModel.setCustomerUId(generatedId);
 		customerModel.setDocuments(DocumentModel);
 
@@ -60,19 +62,19 @@ public class CustomerServiceImpl implements CustomerService {
 		return modelMapper.map(savedCustomer, CustomerDto.class);
 	}
 
-	public String generateCustomerId(String aadhaar, String pan) {
-		boolean hasAadhaar = aadhaar != null && !aadhaar.isBlank();
-		boolean hasPan = pan != null && !pan.isBlank();
-
-		if (hasAadhaar && hasPan) {
-			return "AADPAN-" + (aadhaar + pan).hashCode();
-		} else if (hasAadhaar) {
-			return "AAD-" + aadhaar.hashCode();
-		} else if (hasPan) {
-			return "PAN-" + pan.hashCode();
-		} else {
-			throw new IllegalArgumentException("At least Aadhaar or PAN must be provided");
-		}
-	}
+//	public String generateCustomerId(String aadhaar, String pan) {
+//		boolean hasAadhaar = aadhaar != null && !aadhaar.isBlank();
+//		boolean hasPan = pan != null && !pan.isBlank();
+//
+//		if (hasAadhaar && hasPan) {
+//			return "AADPAN-" + (aadhaar + pan).hashCode();
+//		} else if (hasAadhaar) {
+//			return "AAD-" + aadhaar.hashCode();
+//		} else if (hasPan) {
+//			return "PAN-" + pan.hashCode();
+//		} else {
+//			throw new IllegalArgumentException("At least Aadhaar or PAN must be provided");
+//		}
+//	}
 }
 
