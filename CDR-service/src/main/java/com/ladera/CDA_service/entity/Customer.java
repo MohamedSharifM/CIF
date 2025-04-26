@@ -1,27 +1,70 @@
 package com.ladera.CDA_service.entity;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
-@Data
 public class Customer extends AuditFile {
 
-//	@Id
-//	@GeneratedValue(strategy = GenerationType.IDENTITY)
-//	private long PK;
-	private String customerUId;
-	private String name;
-	@OneToMany
-	private List<Documents> documents;
-	private LocalDate dob;
-	private String email;
-	private long contact;
+	@Column(unique = true)
+	private String customerId;
+	private String customerName;
+	@OneToMany(cascade = CascadeType.ALL)
+	private List<Document> documents;
+	private LocalDateTime dob;
+	private String phoneNo;
+	@Column(unique = true)
+	private String emailId;
+
+	public String getCustomerId() {
+		return customerId;
+	}
+
+	public void setCustomerId(String customerId) {
+		this.customerId = customerId;
+	}
+
+	public String getCustomerName() {
+		return customerName;
+	}
+
+	public void setCustomerName(String customerName) {
+		this.customerName = customerName;
+	}
+
+	public List<Document> getDocuments() {
+		return documents;
+	}
+
+	public void setDocuments(List<Document> documents) {
+		this.documents = documents;
+	}
+
+	public LocalDateTime getDob() {
+		return dob;
+	}
+
+	public void setDob(LocalDateTime dob) {
+		this.dob = dob;
+	}
+
+	public String getPhoneNo() {
+		return phoneNo;
+	}
+
+	public void setPhoneNo(String phoneNo) {
+		this.phoneNo = phoneNo;
+	}
+
+	public String getEmailId() {
+		return emailId;
+	}
+
+	public void setEmailId(String emailId) {
+		this.emailId = emailId;
+	}
 }
