@@ -2,6 +2,7 @@ package com.ladera.CDA_service.service.impl;
 
 import java.util.List;
 
+import com.ladera.CDA_service.integration.System_1_service;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.ladera.CDA_service.dto.CustomerDto;
 import com.ladera.CDA_service.entity.Customer;
-import com.ladera.CDA_service.entity.Documents;
+import com.ladera.CDA_service.entity.Document;
 import com.ladera.CDA_service.enums.DocumentType;
 import com.ladera.CDA_service.repo.CustomerRepo;
 import com.ladera.CDA_service.repo.DocumentRepo;
@@ -25,6 +26,8 @@ public class CustomerServiceImpl implements CustomerService {
 	private DocumentRepo documentsRepo;
 	@Autowired
 	private CustomerIdGeneratorService customerIdGeneratorService;
+
+	private System_1_service system_1_service;
 	
 	private static final Logger logger = LoggerFactory.getLogger(CustomerServiceImpl.class);
 
@@ -33,20 +36,20 @@ public class CustomerServiceImpl implements CustomerService {
 	public CustomerDto saveCustomer(CustomerDto customer) {
 		
 
-	  List<Documents> DocumentModel=	customer.getDocuments().stream().map(doc->{
-			Documents model=new Documents();
+	  List<Document> DocumentModel=	customer.getDocuments().stream().map(doc->{
+			Document model=new Document();
 			modelMapper.map(doc, model);
 			return model;
 		}).toList();
-	  List<Documents> savedDocument= documentsRepo.saveAll(DocumentModel);
+	  List<Document> savedDocument= documentsRepo.saveAll(DocumentModel);
         
 		Customer customerModel = modelMapper.map(customer, Customer.class);
 	
 		String adhaar = "";
 		String pan = "";
-		for (Documents doc : savedDocument) {
+		for (Document doc : savedDocument) {
 			logger.info(doc.getDocumentType()+"----------------DocType");
-			if (doc.getDocumentType().equals(DocumentType.ADHAAR_CARD)) {
+			if (doc.getDocumentType().equals(DocumentType.AADHAAR_CARD)) {
 				adhaar = doc.getDocumentNo();
 				
 			} else if (doc.getDocumentType().equals(DocumentType.PAN_CARD)) {
@@ -54,13 +57,15 @@ public class CustomerServiceImpl implements CustomerService {
 			}
 		}
 		String generatedId = customerIdGeneratorService.generateCustomerId(adhaar, pan); 
-		customerModel.setCustomerUId(generatedId);
+		customerModel.setCustomerId(generatedId);
+		customerModel.setCustomerId(generatedId);
 		customerModel.setDocuments(DocumentModel);
 
 		Customer savedCustomer = customerRepo.save(customerModel);
 
 		return modelMapper.map(savedCustomer, CustomerDto.class);
 	}
+
 
 //	public String generateCustomerId(String aadhaar, String pan) {
 //		boolean hasAadhaar = aadhaar != null && !aadhaar.isBlank();
@@ -76,5 +81,28 @@ public class CustomerServiceImpl implements CustomerService {
 //			throw new IllegalArgumentException("At least Aadhaar or PAN must be provided");
 //		}
 //	}
+
+	@Override
+	public CustomerDto fetchAndSaveTheCustomer(String code) {
+		CustomerDto customerdto = system_1_service.getCustomerById(code).getBody();
+		Customer customer = modelMapper.map(customerdto,Customer.class);
+		Customer savedCustomer = customerRepo.save(customer);
+		return modelMapper.map(savedCustomer,CustomerDto.class);
+	}
+
+	public String generateCustomerId(String aadhaar, String pan) {
+		boolean hasAadhaar = aadhaar != null && !aadhaar.isBlank();
+		boolean hasPan = pan != null && !pan.isBlank();
+
+		if (hasAadhaar && hasPan) {
+			return "AADPAN-" + (aadhaar + pan).hashCode();
+		} else if (hasAadhaar) {
+			return "AAD-" + aadhaar.hashCode();
+		} else if (hasPan) {
+			return "PAN-" + pan.hashCode();
+		} else {
+			throw new IllegalArgumentException("At least Aadhaar or PAN must be provided");
+		}
+	}
 }
 

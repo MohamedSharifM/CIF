@@ -26,11 +26,14 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public CustomerDto getCustomerById(String code) {
-        return null;
+        Customer customer = customerRepository.getCustomerBycustomerId(code);
+        return modelMapper.map(customer,CustomerDto.class);
     }
 
     @Override
     public List<CustomerDto> getAllCustomer() {
-        return null;
+        return customerRepository.findAll().stream().map(customer -> {
+            return modelMapper.map(customer,CustomerDto.class);
+        }).toList();
     }
 }
