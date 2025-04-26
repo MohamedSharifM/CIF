@@ -8,10 +8,10 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @SpringBootApplication
 @EnableDiscoveryClient
 @EnableFeignClients
-public class CdaServiceApplication {
+public class CdrServiceApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(CdaServiceApplication.class, args);
+		SpringApplication.run(CdrServiceApplication.class, args);
 	}
 
 }
